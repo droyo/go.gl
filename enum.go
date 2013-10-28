@@ -1,5 +1,6 @@
-// GoGL2 - automatically generated OpenGL binding: http://github.com/chsc/gogl2
 package gl
+
+// GoGL2 - automatically generated OpenGL binding: http://github.com/chsc/gogl2
 
 const (
 	gl_2D = 0x0600

@@ -1,4 +1,3 @@
-// Package gl provides a set of modern OpenGL bindings.
 package gl
 
 /*
@@ -14,6 +13,7 @@ import (
 	"errors"
 	"unsafe"
 	"image/color"
+	"reflect"
 )
 
 // func Accum(op glt.Enum, value float32) {
@@ -1813,6 +1813,38 @@ func Clear(bit ClearFlags) {
 	C.goglClear(C.GLbitfield(bit))
 }
 
+func DrawArrays(draw Mode, first, count int) {
+	C.goglDrawArrays(C.GLenum(draw), C.GLint(first), C.GLsizei(count))
+}
+
+// BufferData uploads vertex data from the system into server memory.
+// The argument data must be a non-nil slice of numeric values. The
+// data must be a non-nil slice or array of numeric elements. Passing
+// a nil or forbidden type will result in a run-time panic.
+func BufferData(t Target, data interface{}, hint UsageHint) error {
+	val := reflect.ValueOf(data)
+	typ := reflect.TypeOf(data)
+	switch typ.Kind() {
+	case reflect.Slice, reflect.Array:
+		if val.IsNil() {
+			panic("Nil data argument")
+		}
+		switch typ.Elem().Kind() {
+		case reflect.Int,reflect.Int32,reflect.Int64,reflect.Uint,reflect.Uint32,reflect.Uint64,reflect.Float32,reflect.Float64:
+			C.goglBufferData(
+				C.GLenum(t),
+				C.GLsizeiptr(typ.Elem().Size()) * C.GLsizeiptr(val.Len()),
+				unsafe.Pointer(val.Index(0).UnsafeAddr()),
+				C.GLenum(hint))
+		default:
+			panic("Non-numeric data type " + typ.Elem().String())
+		}
+	default:
+		panic("Non-slice or array data type " + typ.String())
+	}
+	return getError()
+}
+
 func Init(version string) error {
 	if err := C.goglInit(); err != nil {
 		defer C.free(unsafe.Pointer(err))
@@ -1820,4 +1852,3 @@ func Init(version string) error {
 	}
 	return nil
 }
-
