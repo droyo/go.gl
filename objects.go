@@ -18,6 +18,7 @@ type (
 	ShaderType   uint32
 	Uniform      int32
 	Attrib       uint32
+	VertexArray  uint32
 	Buffer       uint32
 	Framebuffer  uint32
 	Renderbuffer uint32
@@ -25,20 +26,38 @@ type (
 )
 
 type (
-	Type      uint
-	Target    uint
-	UsageHint uint
-	Mode      uint
+	Type       uint
+	Target     uint
+	UsageHint  uint
+	DrawMode   uint
+	Attachment uint
+	TexFormat  uint
+	TexParam   uint
 )
 
 const (
-	Points        Mode = gl_POINTS
-	LineStrip     Mode = gl_LINE_STRIP
-	LineLoop      Mode = gl_LINE_LOOP
-	Lines         Mode = gl_LINES
-	TriangleStrip Mode = gl_TRIANGLE_STRIP
-	TriangleFan   Mode = gl_TRIANGLE_FAN
-	Triangles     Mode = gl_TRIANGLES
+	DEPTH_ATTACHMENT   Attachment = gl_DEPTH_ATTACHMENT
+	STENCIL_ATTACHMENT Attachment = gl_STENCIL_ATTACHMENT
+	COLOR_ATTACHMENT0  Attachment = gl_COLOR_ATTACHMENT0
+)
+
+const (
+	POINTS        DrawMode = gl_POINTS
+	LINE_STRIP    DrawMode = gl_LINE_STRIP
+	LINE_LOOP     DrawMode = gl_LINE_LOOP
+	LINES         DrawMode = gl_LINES
+	TRIAGLE_STRIP DrawMode = gl_TRIANGLE_STRIP
+	TRIANGLE_FAN  DrawMode = gl_TRIANGLE_FAN
+	TRIANGLES     DrawMode = gl_TRIANGLES
+)
+
+const (
+	DEPTH_COMPONENT       TexFormat = gl_DEPTH_COMPONENT
+	DEPTH_COMPONENT16     TexFormat = gl_DEPTH_COMPONENT16
+	DEPTH_COMPONENT24     TexFormat = gl_DEPTH_COMPONENT24
+	DEPTH_COMPONENT32     TexFormat = gl_DEPTH_COMPONENT32
+	RGB                   TexFormat = gl_RGB
+	RGBA                  TexFormat = gl_RGBA
 )
 
 const (
@@ -52,19 +71,44 @@ const (
 )
 
 const (
-	ArrayBuffer        Target = gl_ARRAY_BUFFER
-	ElementArrayBuffer Target = gl_ELEMENT_ARRAY_BUFFER
+	ARRAY_BUFFER                 Target = gl_ARRAY_BUFFER
+	ELEMENT_ARRAY_BUFFER         Target = gl_ELEMENT_ARRAY_BUFFER
+	FRAMEBUFFER                  Target = gl_FRAMEBUFFER
+	RENDERBUFFER                 Target = gl_RENDERBUFFER
+	TEXTURE_1D                   Target = gl_TEXTURE_1D
+	TEXTURE_2D                   Target = gl_TEXTURE_2D
+	TEXTURE_3D                   Target = gl_TEXTURE_3D
+	TEXTURE_BUFFER               Target = 0x8C2A
+	TEXTURE_CUBE_MAP             Target = gl_TEXTURE_CUBE_MAP
+	TEXTURE_RECTANGLE            Target = 0x84F5
+	UNIFORM_BUFFER               Target = 0x8A11
 )
 
 const (
-	StreamDraw  UsageHint = 0x88E0 // Modify once, use seldom.
-	StaticDraw  UsageHint = 0x88E4 // Modify once, use often.
-	DynamicDraw UsageHint = 0x88E8 // Modify often, use often.
+	STREAM_DRAW  UsageHint = 0x88E0 // Modify once, use seldom.
+	STATIC_DRAW  UsageHint = 0x88E4 // Modify once, use often.
+	DYNAMIC_DRAW UsageHint = 0x88E8 // Modify often, use often.
 )
 
 const (
-	VertexShader   ShaderType = gl_VERTEX_SHADER
-	FragmentShader ShaderType = gl_FRAGMENT_SHADER
+	VERTEX_SHADER   ShaderType = gl_VERTEX_SHADER
+	FRAGMENT_SHADER ShaderType = gl_FRAGMENT_SHADER
+)
+
+const (
+	TEXTURE_BASE_LEVEL   TexParam = gl_TEXTURE_BASE_LEVEL
+	TEXTURE_BORDER_COLOR TexParam = gl_TEXTURE_BORDER_COLOR
+	TEXTURE_COMPARE_FUNC TexParam = gl_TEXTURE_COMPARE_FUNC
+	TEXTURE_COMPARE_MODE TexParam = gl_TEXTURE_COMPARE_MODE
+	TEXTURE_LOD_BIAS     TexParam = gl_TEXTURE_LOD_BIAS
+	TEXTURE_MAG_FILTER   TexParam = gl_TEXTURE_MAG_FILTER
+	TEXTURE_MAX_LEVEL    TexParam = gl_TEXTURE_MAX_LEVEL
+	TEXTURE_MAX_LOD      TexParam = gl_TEXTURE_MAX_LOD
+	TEXTURE_MIN_FILTER   TexParam = gl_TEXTURE_MIN_FILTER
+	TEXTURE_MIN_LOD      TexParam = gl_TEXTURE_MIN_LOD
+	TEXTURE_WRAP_R       TexParam = gl_TEXTURE_WRAP_R
+	TEXTURE_WRAP_S       TexParam = gl_TEXTURE_WRAP_S
+	TEXTURE_WRAP_T       TexParam = gl_TEXTURE_WRAP_T
 )
 
 var (
@@ -109,6 +153,15 @@ func GenRenderbuffers(n int) []Renderbuffer {
 	return []Renderbuffer(buf)
 }
 
+func GenVertexArrays(n int) []VertexArray {
+	if n < 0 {
+		panic("Cannot pass negative value to Gen* functions")
+	}
+	buf := make([]VertexArray, n)
+	C.goglGenVertexArrays(C.GLsizei(n), (*C.GLuint)(&buf[0]))
+	return []VertexArray(buf)
+}
+
 func CreateShader(t ShaderType) Shader {
 	x := C.goglCreateShader(C.GLenum(t))
 	if C.goglGetError() != gl_NO_ERROR {
@@ -129,31 +182,33 @@ func CreateProgram() Program {
 
 // DeleteBuffers deletes several buffers at once.
 func DeleteBuffers(b []Buffer) {
-	if b == nil {
-		panic("nil Buffer slice")
+	if b != nil {
+		C.goglDeleteBuffers(C.GLsizei(len(b)), (*C.GLuint)(&b[0]))
 	}
-	C.goglDeleteBuffers(C.GLsizei(len(b)), (*C.GLuint)(&b[0]))
 }
 
 func DeleteFramebuffers(b []Framebuffer) {
-	if b == nil {
-		panic("nil Framebuffer slice")
+	if b != nil {
+		C.goglDeleteFramebuffers(C.GLsizei(len(b)), (*C.GLuint)(&b[0]))
 	}
-	C.goglDeleteFramebuffers(C.GLsizei(len(b)), (*C.GLuint)(&b[0]))
+}
+
+func DeleteVertexArrays(b []VertexArray) {
+	if b != nil {
+		C.goglDeleteVertexArrays(C.GLsizei(len(b)), (*C.GLuint)(&b[0]))
+	}
 }
 
 func DeleteRenderbuffers(b []Renderbuffer) {
-	if b == nil {
-		panic("nil Renderbuffer slice")
+	if b != nil {
+		C.goglDeleteRenderbuffers(C.GLsizei(len(b)), (*C.GLuint)(&b[0]))
 	}
-	C.goglDeleteRenderbuffers(C.GLsizei(len(b)), (*C.GLuint)(&b[0]))
 }
 
 func DeleteTextures(b []Texture) {
 	if b == nil {
-		panic("nil Texture slice")
+		C.goglDeleteTextures(C.GLsizei(len(b)), (*C.GLuint)(&b[0]))
 	}
-	C.goglDeleteTextures(C.GLsizei(len(b)), (*C.GLuint)(&b[0]))
 }
 
 func DeleteShader(s Shader) {
@@ -171,9 +226,9 @@ func BindBuffer(t Target, b Buffer) error {
 	err := C.goglGetError()
 	switch err {
 	case gl_INVALID_ENUM:
-		return fmt.Errorf("Invalid target %d", t)
+		return fmt.Errorf("Invalid target %v", t)
 	case gl_INVALID_VALUE:
-		return fmt.Errorf("%d is not a Buffer", b)
+		return fmt.Errorf("%x is not a Buffer", b)
 	case gl_NO_ERROR:
 		return nil
 	default:
@@ -186,15 +241,120 @@ func BindFramebuffer(t Target, b Framebuffer) error {
 	err := C.goglGetError()
 	switch err {
 	case gl_INVALID_ENUM:
-		return fmt.Errorf("Invalid target %d", t)
+		return fmt.Errorf("Invalid target %v", t)
 	case gl_INVALID_VALUE:
-		return fmt.Errorf("%d is not a Framebuffer", b)
+		return fmt.Errorf("%x is not a Framebuffer", b)
 	case gl_NO_ERROR:
 		return nil
 	default:
 		return (*Error)(&err)
 	}
 }
+
+func BindRenderbuffer(t Target, b Renderbuffer) error {
+	C.goglBindRenderbuffer(C.GLenum(t), C.GLuint(b))
+	err := C.goglGetError()
+	switch err {
+	case gl_INVALID_ENUM:
+		return fmt.Errorf("Invalid target %v", t)
+	case gl_INVALID_VALUE:
+		return fmt.Errorf("%x is not a Renderbuffer", b)
+	case gl_NO_ERROR:
+		return nil
+	default:
+		return (*Error)(&err)
+	}
+}
+
+func BindVertexArray(vao VertexArray) error {
+	C.goglBindVertexArray(C.GLuint(vao))
+	err := C.goglGetError()
+	switch err {
+	case gl_INVALID_OPERATION:
+		return fmt.Errorf("%x is not a Vertex Array", uint(vao))
+	case gl_NO_ERROR:
+		return nil
+	default:
+		return (*Error)(&err)
+	}
+}
+
+// Framebuffers
+
+func FramebufferRenderbuffer(tgt Target, a Attachment, bufTgt Target, buf Renderbuffer) error {
+	C.goglFramebufferRenderbuffer(
+		C.GLenum(tgt),
+		C.GLenum(a),
+		C.GLenum(bufTgt),
+		C.GLuint(buf))
+	return getError()
+}
+
+func FramebufferTexture2D(tgt Target, a Attachment, texTgt Target, tex Texture, lvl int) error {
+	C.goglFramebufferTexture2D(
+		C.GLenum(tgt),
+		C.GLenum(a),
+		C.GLenum(texTgt),
+		C.GLuint(tex),
+		C.GLint(lvl))
+	return getError()
+}
+
+// Textures
+
+func TexImage(tgt Target, lvl int, internal TexFormat, format TexFormat, data interface{}, shape ...int) error {
+	typ, _, count, ptr := sliceInfo(data)
+	{
+		internal := C.GLint(internal)
+		tgt := C.GLenum(tgt)
+		lvl := C.GLint(lvl)
+		format := C.GLenum(format)
+		typ := C.GLenum(typ)
+		
+		switch len(shape) {
+		case 0:
+			shape = []int{count}
+			fallthrough
+		case 1:
+			width := C.GLsizei(shape[0])
+			C.goglTexImage1D(tgt, lvl, internal, width, 0, format, typ, ptr)
+		case 2:
+			width, height := C.GLsizei(shape[0]), C.GLsizei(shape[1])
+			C.goglTexImage2D(tgt, lvl, internal, width, height, 0, format, typ, ptr)
+		case 3:
+			width, height, depth := C.GLsizei(shape[0]), C.GLsizei(shape[1]), C.GLsizei(shape[2])
+			C.goglTexImage3D(tgt, lvl, internal, width, height, depth, 0, format, typ, ptr)
+		default:
+			panic(fmt.Sprintf("Wrong number of dimensions given to TexImage: %d", len(shape)))
+		}
+	}
+	return getError()
+}
+
+func TexParameter(tgt Target, param TexParam, val interface{}) {
+	switch val := val.(type) {
+	case int:
+		C.goglTexParameteri(C.GLenum(tgt), C.GLenum(param), C.GLint(val))
+	case float32:
+		C.goglTexParameterf(C.GLenum(tgt), C.GLenum(param), C.GLfloat(val))
+	case []int:
+		ptr := (*C.GLint)(nil)
+		if len(val) > 0 {
+			ptr = (*C.GLint)(unsafe.Pointer(&val[0]))
+		}
+		C.goglTexParameteriv(C.GLenum(tgt), C.GLenum(param), (*C.GLint)(ptr))
+	case []float32:
+		ptr := (*C.GLfloat)(nil)
+		if len(val) > 0 {
+			ptr = (*C.GLfloat)(unsafe.Pointer(&val[0]))
+		}
+		C.goglTexParameterfv(C.GLenum(tgt), C.GLenum(param), (*C.GLfloat)(ptr))
+	default:
+		panic(fmt.Sprintf("Invalid TexParameter value type %T", val))
+	}
+}
+
+// GLSL Programs
 
 // TODO(droyo) func ShaderBinary(bin []byte)
 func ShaderSource(s Shader, src []byte) error {
@@ -247,12 +407,12 @@ func GetShaderSource(s Shader) ([]byte, error) {
 
 func (s Shader) String() string {
 	switch s.Type() {
-	case VertexShader:
-		return fmt.Sprintf("<vert shader %x>", s)
-	case FragmentShader:
-		return fmt.Sprintf("<frag shader %x>", s)
+	case VERTEX_SHADER:
+		return fmt.Sprintf("<vert shader %x>", uint32(s))
+	case FRAGMENT_SHADER:
+		return fmt.Sprintf("<frag shader %x>", uint32(s))
 	default:
-		return fmt.Sprintf("<invalid shader %x>", s)
+		return fmt.Sprintf("<invalid shader %x>", uint32(s))
 	}
 }
 
@@ -267,9 +427,9 @@ func (s Shader) Type() ShaderType {
 
 func (p Program) String() string {
 	if p == 0 || C.goglIsProgram(C.GLuint(p)) != gl_TRUE {
-		return fmt.Sprintf("<invalid program %x>", p)
+		return fmt.Sprintf("<invalid program %x>", uint32(p))
 	}
-	return fmt.Sprintf("<program %x>", p)
+	return fmt.Sprintf("<program %x>", uint32(p))
 }
 
 func AttachShader(p Program, s Shader) error {

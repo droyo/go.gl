@@ -30,6 +30,7 @@ void (APIENTRYP pglBegin)(GLenum mode);
 void (APIENTRYP pglBeginQuery)(GLenum target, GLuint id);
 void (APIENTRYP pglBindAttribLocation)(GLuint program, GLuint index, const GLchar* name);
 void (APIENTRYP pglBindBuffer)(GLenum target, GLuint buffer);
+void (APIENTRYP pglBindVertexArray)(GLuint array);
 void (APIENTRYP pglBindFramebuffer)(GLenum target, GLuint framebuffer);
 void (APIENTRYP pglBindRenderbuffer)(GLenum target, GLuint renderbuffer);
 void (APIENTRYP pglBindTexture)(GLenum target, GLuint texture);
@@ -110,6 +111,7 @@ GLuint (APIENTRYP pglCreateProgram)();
 GLuint (APIENTRYP pglCreateShader)(GLenum type);
 void (APIENTRYP pglCullFace)(GLenum mode);
 void (APIENTRYP pglDeleteBuffers)(GLsizei n, const GLuint* buffers);
+void (APIENTRYP pglDeleteVertexArrays)(GLsizei n, const GLuint* arrays);
 void (APIENTRYP pglDeleteFramebuffers)(GLsizei n, const GLuint* framebuffers);
 void (APIENTRYP pglDeleteLists)(GLuint list, GLsizei range);
 void (APIENTRYP pglDeleteProgram)(GLuint program);
@@ -174,6 +176,7 @@ void (APIENTRYP pglFrustum)(GLdouble left, GLdouble right, GLdouble bottom, GLdo
 void (APIENTRYP pglFrustumf)(GLfloat l, GLfloat r, GLfloat b, GLfloat t, GLfloat n, GLfloat f);
 void (APIENTRYP pglFrustumx)(GLfixed l, GLfixed r, GLfixed b, GLfixed t, GLfixed n, GLfixed f);
 void (APIENTRYP pglGenBuffers)(GLsizei n, GLuint* buffers);
+void (APIENTRYP pglGenVertexArrays)(GLsizei n, GLuint* arrays);
 void (APIENTRYP pglGenFramebuffers)(GLsizei n, GLuint* framebuffers);
 GLuint (APIENTRYP pglGenLists)(GLsizei range);
 void (APIENTRYP pglGenQueries)(GLsizei n, GLuint* ids);
@@ -661,6 +664,9 @@ void goglBindAttribLocation(GLuint program, GLuint index, const GLchar* name) {
 void goglBindBuffer(GLenum target, GLuint buffer) {
 	(*pglBindBuffer)(target, buffer);
 }
+void goglBindVertexArray(GLuint array) {
+	(*pglBindVertexArray)(array);
+}
 void goglBindFramebuffer(GLenum target, GLuint framebuffer) {
 	(*pglBindFramebuffer)(target, framebuffer);
 }
@@ -901,6 +907,9 @@ void goglCullFace(GLenum mode) {
 void goglDeleteBuffers(GLsizei n, const GLuint* buffers) {
 	(*pglDeleteBuffers)(n, buffers);
 }
+void goglDeleteVertexArrays(GLsizei n, const GLuint* arrays) {
+	(*pglDeleteVertexArrays)(n, arrays);
+}
 void goglDeleteFramebuffers(GLsizei n, const GLuint* framebuffers) {
 	(*pglDeleteFramebuffers)(n, framebuffers);
 }
@@ -1092,6 +1101,9 @@ void goglFrustumx(GLfixed l, GLfixed r, GLfixed b, GLfixed t, GLfixed n, GLfixed
 }
 void goglGenBuffers(GLsizei n, GLuint* buffers) {
 	(*pglGenBuffers)(n, buffers);
+}
+void goglGenVertexArrays(GLsizei n, GLuint* arrays) {
+	(*pglGenVertexArrays)(n, arrays);
 }
 void goglGenFramebuffers(GLsizei n, GLuint* framebuffers) {
 	(*pglGenFramebuffers)(n, framebuffers);
@@ -2466,6 +2478,7 @@ char *goglInit(char *buf, size_t n) {
 	if((pglBeginQuery = goglGetProcAddress(err="glBeginQuery")) == NULL) goto fail;
 	if((pglBindAttribLocation = goglGetProcAddress(err="glBindAttribLocation")) == NULL) goto fail;
 	if((pglBindBuffer = goglGetProcAddress(err="glBindBuffer")) == NULL) goto fail;
+	if((pglBindVertexArray = goglGetProcAddress(err="glBindVertexArray")) == NULL) goto fail;
 	if((pglBindFramebuffer = goglGetProcAddress(err="glBindFramebuffer")) == NULL) goto fail;
 	if((pglBindRenderbuffer = goglGetProcAddress(err="glBindRenderbuffer")) == NULL) goto fail;
 	if((pglBindTexture = goglGetProcAddress(err="glBindTexture")) == NULL) goto fail;
@@ -2610,6 +2623,7 @@ char *goglInit(char *buf, size_t n) {
 //	if((pglFrustumf = goglGetProcAddress(err="glFrustumf")) == NULL) goto fail;
 //	if((pglFrustumx = goglGetProcAddress(err="glFrustumx")) == NULL) goto fail;
 	if((pglGenBuffers = goglGetProcAddress(err="glGenBuffers")) == NULL) goto fail;
+	if((pglGenVertexArrays = goglGetProcAddress(err="glGenVertexArrays")) == NULL) goto fail;
 	if((pglGenFramebuffers = goglGetProcAddress(err="glGenFramebuffers")) == NULL) goto fail;
 	if((pglGenLists = goglGetProcAddress(err="glGenLists")) == NULL) goto fail;
 	if((pglGenQueries = goglGetProcAddress(err="glGenQueries")) == NULL) goto fail;
