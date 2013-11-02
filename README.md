@@ -1,6 +1,6 @@
 WORK IN PROGRESS - INCOMPLETE
 
-This is a set of OpenGL bindings meant to be easy to use from Go.
+This is a subset of OpenGL bindings meant to be easy to use from Go.
 They were made by generating bindings using [Christoph Schunk's
 GoGL2 utility][0] and modifying the output to be easier to use with
 Go. For example, setup functions like BindBuffer and CompileShader,
