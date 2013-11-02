@@ -181,7 +181,7 @@ func BufferData(t Target, data interface{}, hint UsageHint) error {
 	return getError()
 }
 
-func BufferSubData(t Target, offset uintptr, data interface{}, hint UsageHint) error {
+func BufferSubData(t Target, offset uintptr, data interface{}) error {
 	_, size, count, ptr := sliceInfo(data)
 	C.goglBufferSubData(C.GLenum(t), C.GLintptr(offset), C.GLsizeiptr(size * uintptr(count)), ptr)
 	return getError()
@@ -196,15 +196,27 @@ func sliceInfo(v interface{}) (fmt Type, size uintptr, count int, ptr unsafe.Poi
 			switch typ.Elem().Kind() {
 			case reflect.Float32:
 				fmt = Float
+			case reflect.Int:
+				fmt = Int
+			case reflect.Int16:
+				fmt = Int16
+			case reflect.Int8:
+				fmt = Int8
+			case reflect.Uint:
+				fmt = Uint
+			case reflect.Uint16:
+				fmt = Uint16
+			case reflect.Uint8:
+				fmt = Uint8
 			default:
 				panic("Invalid element type " + typ.Elem().String())
 			}
 			size = typ.Elem().Size()
 			count = val.Len()
-			if val.IsNil() {
-				ptr = nil
-			} else {
+			if val.Len() > 0 {
 				ptr = unsafe.Pointer(val.Index(0).UnsafeAddr())
+			} else {
+				ptr = nil
 			}
 		default:
 			panic("value must be a slice or array")

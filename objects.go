@@ -46,18 +46,36 @@ const (
 	LINE_STRIP    DrawMode = gl_LINE_STRIP
 	LINE_LOOP     DrawMode = gl_LINE_LOOP
 	LINES         DrawMode = gl_LINES
-	TRIAGLE_STRIP DrawMode = gl_TRIANGLE_STRIP
+	TRIANGLE_STRIP DrawMode = gl_TRIANGLE_STRIP
 	TRIANGLE_FAN  DrawMode = gl_TRIANGLE_FAN
 	TRIANGLES     DrawMode = gl_TRIANGLES
 )
 
 const (
-	DEPTH_COMPONENT       TexFormat = gl_DEPTH_COMPONENT
-	DEPTH_COMPONENT16     TexFormat = gl_DEPTH_COMPONENT16
-	DEPTH_COMPONENT24     TexFormat = gl_DEPTH_COMPONENT24
-	DEPTH_COMPONENT32     TexFormat = gl_DEPTH_COMPONENT32
-	RGB                   TexFormat = gl_RGB
-	RGBA                  TexFormat = gl_RGBA
+	DEPTH_COMPONENT     TexFormat = gl_DEPTH_COMPONENT
+	DEPTH_COMPONENT16   TexFormat = gl_DEPTH_COMPONENT16
+	DEPTH_COMPONENT24   TexFormat = gl_DEPTH_COMPONENT24
+	DEPTH_COMPONENT32   TexFormat = gl_DEPTH_COMPONENT32
+	RED                 TexFormat = 0x1903
+	RGB                 TexFormat = gl_RGB
+	RGBA                TexFormat = gl_RGBA
+	INTENSITY           TexFormat = gl_INTENSITY
+	INTENSITY12         TexFormat = gl_INTENSITY12
+	INTENSITY16         TexFormat = 0x804D
+	INTENSITY4          TexFormat = 0x804A
+	INTENSITY8          TexFormat = 0x804B
+	LUMINANCE           TexFormat = 0x1909
+	LUMINANCE12         TexFormat = 0x8041
+	LUMINANCE12_ALPHA12 TexFormat = 0x8047
+	LUMINANCE12_ALPHA4  TexFormat = 0x8046
+	LUMINANCE16         TexFormat = 0x8042
+	LUMINANCE16_ALPHA16 TexFormat = 0x8048
+	LUMINANCE4          TexFormat = 0x803F
+	LUMINANCE4_ALPHA4   TexFormat = 0x8043
+	LUMINANCE6_ALPHA2   TexFormat = 0x8044
+	LUMINANCE8          TexFormat = 0x8040
+	LUMINANCE8_ALPHA8   TexFormat = 0x8045
+	LUMINANCE_ALPHA     TexFormat = 0x190A
 )
 
 const (
@@ -70,6 +88,40 @@ const (
 	Uint8  Type = gl_UNSIGNED_BYTE
 )
 
+const (
+	TEXTURE0  Texture = 0x84C0
+	TEXTURE1  Texture = 0x84C1
+	TEXTURE2  Texture = 0x84C2
+	TEXTURE3  Texture = 0x84C3
+	TEXTURE4  Texture = 0x84C4
+	TEXTURE5  Texture = 0x84C5
+	TEXTURE6  Texture = 0x84C6
+	TEXTURE7  Texture = 0x84C7
+	TEXTURE8  Texture = 0x84C8
+	TEXTURE9  Texture = 0x84C9
+	TEXTURE10 Texture = 0x84CA
+	TEXTURE11 Texture = 0x84CB
+	TEXTURE12 Texture = 0x84CC
+	TEXTURE13 Texture = 0x84CD
+	TEXTURE14 Texture = 0x84CE
+	TEXTURE15 Texture = 0x84CF
+	TEXTURE16 Texture = 0x84D0
+	TEXTURE17 Texture = 0x84D1
+	TEXTURE18 Texture = 0x84D2
+	TEXTURE19 Texture = 0x84D3
+	TEXTURE20 Texture = 0x84D4
+	TEXTURE21 Texture = 0x84D5
+	TEXTURE22 Texture = 0x84D6
+	TEXTURE23 Texture = 0x84D7
+	TEXTURE24 Texture = 0x84D8
+	TEXTURE25 Texture = 0x84D9
+	TEXTURE26 Texture = 0x84DA
+	TEXTURE27 Texture = 0x84DB
+	TEXTURE28 Texture = 0x84DC
+	TEXTURE29 Texture = 0x84DD
+	TEXTURE30 Texture = 0x84DE
+	TEXTURE31 Texture = 0x84DF
+)
 const (
 	ARRAY_BUFFER                 Target = gl_ARRAY_BUFFER
 	ELEMENT_ARRAY_BUFFER         Target = gl_ELEMENT_ARRAY_BUFFER
@@ -93,6 +145,7 @@ const (
 const (
 	VERTEX_SHADER   ShaderType = gl_VERTEX_SHADER
 	FRAGMENT_SHADER ShaderType = gl_FRAGMENT_SHADER
+	GEOMETRY_SHADER ShaderType = 0x8DD9
 )
 
 const (
@@ -236,6 +289,34 @@ func BindBuffer(t Target, b Buffer) error {
 	}
 }
 
+func ActiveTexture(tex Texture) error {
+	C.goglActiveTexture(C.GLenum(tex))
+	err := C.goglGetError()
+	switch err {
+	case gl_INVALID_ENUM:
+		return fmt.Errorf("Invalid texture %v", tex)
+	case gl_NO_ERROR:
+		return nil
+	default:
+		return (*Error)(&err)
+	}
+}
+
+func BindTexture(t Target, b Texture) error {
+	C.goglBindTexture(C.GLenum(t), C.GLuint(b))
+	err := C.goglGetError()
+	switch err {
+	case gl_INVALID_ENUM:
+		return fmt.Errorf("Invalid target %v", t)
+	case gl_INVALID_VALUE:
+		return fmt.Errorf("%x is not a Texture", b)
+	case gl_NO_ERROR:
+		return nil
+	default:
+		return (*Error)(&err)
+	}
+}
+
 func BindFramebuffer(t Target, b Framebuffer) error {
 	C.goglBindFramebuffer(C.GLenum(t), C.GLuint(b))
 	err := C.goglGetError()
@@ -300,40 +381,26 @@ func FramebufferTexture2D(tgt Target, a Attachment, texTgt Target, tex Texture, 
 	return getError()
 }
 
-// Textures
-
-func TexImage(tgt Target, lvl int, internal TexFormat, format TexFormat, data interface{}, shape ...int) error {
-	typ, _, count, ptr := sliceInfo(data)
-	{
-		internal := C.GLint(internal)
-		tgt := C.GLenum(tgt)
-		lvl := C.GLint(lvl)
-		format := C.GLenum(format)
-		typ := C.GLenum(typ)
-		
-		switch len(shape) {
-		case 0:
-			shape = []int{count}
-			fallthrough
-		case 1:
-			width := C.GLsizei(shape[0])
-			C.goglTexImage1D(tgt, lvl, internal, width, 0, format, typ, ptr)
-		case 2:
-			width, height := C.GLsizei(shape[0]), C.GLsizei(shape[1])
-			C.goglTexImage2D(tgt, lvl, internal, width, height, 0, format, typ, ptr)
-		case 3:
-			width, height, depth := C.GLsizei(shape[0]), C.GLsizei(shape[1]), C.GLsizei(shape[2])
-			C.goglTexImage3D(tgt, lvl, internal, width, height, depth, 0, format, typ, ptr)
-		default:
-			panic(fmt.Sprintf("Wrong number of dimensions given to TexImage: %d", len(shape)))
-		}
-	}
-	return getError()
+func TexImage2D(tgt Target, lvl int, internal TexFormat, width, height int, format TexFormat, data interface{}) {
+	typ, _, _, ptr := sliceInfo(data)
+	C.goglTexImage2D(
+		C.GLenum(tgt),
+		C.GLint(lvl),
+		C.GLint(internal),
+		C.GLsizei(width),
+		C.GLsizei(height),
+		0,
+		C.GLenum(format),
+		C.GLenum(typ),
+		ptr,
+	)
 }
 
 func TexParameter(tgt Target, param TexParam, val interface{}) {
 	switch val := val.(type) {
 	case int:
+		C.goglTexParameteri(C.GLenum(tgt), C.GLenum(param), C.GLint(val))
+	case Enum:
 		C.goglTexParameteri(C.GLenum(tgt), C.GLenum(param), C.GLint(val))
 	case float32:
 		C.goglTexParameterf(C.GLenum(tgt), C.GLenum(param), C.GLfloat(val))
