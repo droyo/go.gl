@@ -220,6 +220,7 @@ void goglDrawArrays(GLenum mode, GLint first, GLsizei count);
 void goglDrawBuffer(GLenum mode);
 void goglDrawBuffers(GLsizei n, const GLenum* bufs);
 void goglDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices);
+void goglDrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLint base);
 void goglDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels);
 void goglDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices);
 void goglEdgeFlag(GLboolean flag);

@@ -132,6 +132,7 @@ void (APIENTRYP pglDrawArrays)(GLenum mode, GLint first, GLsizei count);
 void (APIENTRYP pglDrawBuffer)(GLenum mode);
 void (APIENTRYP pglDrawBuffers)(GLsizei n, const GLenum* bufs);
 void (APIENTRYP pglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices);
+void (APIENTRYP pglDrawElementsBaseVertex)(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLint base);
 void (APIENTRYP pglDrawPixels)(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels);
 void (APIENTRYP pglDrawRangeElements)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices);
 void (APIENTRYP pglEdgeFlag)(GLboolean flag);
@@ -969,6 +970,9 @@ void goglDrawBuffers(GLsizei n, const GLenum* bufs) {
 }
 void goglDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices) {
 	(*pglDrawElements)(mode, count, type, indices);
+}
+void goglDrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLint base) {
+	(*pglDrawElementsBaseVertex)(mode, count, type, indices, base);
 }
 void goglDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels) {
 	(*pglDrawPixels)(width, height, format, type, pixels);
@@ -2579,6 +2583,7 @@ char *goglInit(char *buf, size_t n) {
 	if((pglDrawBuffer = goglGetProcAddress(err="glDrawBuffer")) == NULL) goto fail;
 	if((pglDrawBuffers = goglGetProcAddress(err="glDrawBuffers")) == NULL) goto fail;
 	if((pglDrawElements = goglGetProcAddress(err="glDrawElements")) == NULL) goto fail;
+	if((pglDrawElementsBaseVertex = goglGetProcAddress(err="glDrawElementsBaseVertex")) == NULL) goto fail;
 	if((pglDrawPixels = goglGetProcAddress(err="glDrawPixels")) == NULL) goto fail;
 	if((pglDrawRangeElements = goglGetProcAddress(err="glDrawRangeElements")) == NULL) goto fail;
 	if((pglEdgeFlag = goglGetProcAddress(err="glEdgeFlag")) == NULL) goto fail;

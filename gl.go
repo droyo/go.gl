@@ -11,7 +11,6 @@ package gl
 import "C"
 import (
 	"errors"
-	"reflect"
 	"unsafe"
 )
 
@@ -23,62 +22,126 @@ type (
 	Enum       uint
 )
 
-
-const (
-	VENDOR                   Enum = gl_VENDOR
-	RENDERER                 Enum = gl_RENDERER
-	VERSION                  Enum = gl_VERSION
-	SHADING_LANGUAGE_VERSION Enum = gl_SHADING_LANGUAGE_VERSION
+type (
+	Capability   uint
+	WindingOrder uint
+	CullMode     uint
 )
 
 const (
-	COLOR_BUFFER_BIT   ClearFlags = gl_COLOR_BUFFER_BIT
-	DEPTH_BUFFER_BIT   ClearFlags = gl_DEPTH_BUFFER_BIT
-	STENCIL_BUFFER_BIT ClearFlags = gl_STENCIL_BUFFER_BIT
+	Float32 Type = 0x1406
+	Float64 Type = 0x140A
+	Int8    Type = 0x1400
+	Int16   Type = 0x1402
+	Int32   Type = 0x1404
+	Uint8   Type = 0x1401
+	Uint16  Type = 0x1403
+	Uint32  Type = 0x1405
 )
 
 const (
-	FUNC_ADD              BlendMode = gl_FUNC_ADD
-	FUNC_SUBTRACT         BlendMode = gl_FUNC_SUBTRACT
-	FUNC_REVERSE_SUBTRACT BlendMode = gl_FUNC_REVERSE_SUBTRACT
-	MIN                   BlendMode = gl_MIN
-	MAX                   BlendMode = gl_MAX
+	VENDOR                   Enum = 0x1F00
+	RENDERER                 Enum = 0x1F01
+	VERSION                  Enum = 0x1F02
+	SHADING_LANGUAGE_VERSION Enum = 0x8B8C
 )
 
 const (
-	ZERO                     BlendFn = gl_ZERO
-	ONE                      BlendFn = gl_ONE
-	SRC_COLOR                BlendFn = gl_SRC_COLOR
-	ONE_MINUS_SRC_COLOR      BlendFn = gl_ONE_MINUS_SRC_COLOR
-	DST_COLOR                BlendFn = gl_DST_COLOR
-	ONE_MINUS_DST_COLOR      BlendFn = gl_ONE_MINUS_DST_COLOR
-	SRC_ALPHA                BlendFn = gl_SRC_ALPHA
-	ONE_MINUS_SRC_ALPHA      BlendFn = gl_ONE_MINUS_SRC_ALPHA
-	DST_ALPHA                BlendFn = gl_DST_ALPHA
-	ONE_MINUS_DST_ALPHA      BlendFn = gl_ONE_MINUS_DST_ALPHA
-	CONSTANT_COLOR           BlendFn = gl_CONSTANT_COLOR
-	ONE_MINUS_CONSTANT_COLOR BlendFn = gl_ONE_MINUS_CONSTANT_COLOR
-	CONSTANT_ALPHA           BlendFn = gl_CONSTANT_ALPHA
-	ONE_MINUS_CONSTANT_ALPHA BlendFn = gl_ONE_MINUS_CONSTANT_ALPHA
+	BACK           CullMode = 0x0405
+	FRONT          CullMode = 0x0404
+	FRONT_AND_BACK CullMode = 0x0408
 )
 
 const (
-	NEVER    DepthFn = gl_NEVER
-	LESS     DepthFn = gl_LESS
-	EQUAL    DepthFn = gl_EQUAL
-	LEQUAL   DepthFn = gl_LEQUAL
-	GREATER  DepthFn = gl_GREATER
-	NOTEQUAL DepthFn = gl_NOTEQUAL
-	GEQUAL   DepthFn = gl_GEQUAL
-	ALWAYS   DepthFn = gl_ALWAYS
+	CW  WindingOrder = 0x0900 // Clockwise
+	CCW WindingOrder = 0x0901 // Counter-clockwise
 )
 
+const (
+	BLEND                     Capability = 0x0BE2
+	CLIP_DISTANCE0            Capability = 0x3000
+	CLIP_DISTANCE1            Capability = 0x3001
+	CLIP_DISTANCE2            Capability = 0x3002
+	CLIP_DISTANCE3            Capability = 0x3003
+	CLIP_DISTANCE4            Capability = 0x3004
+	CLIP_DISTANCE5            Capability = 0x3005
+	CLIP_DISTANCE6            Capability = 0x3006
+	CLIP_DISTANCE7            Capability = 0x3007
+	COLOR_LOGIC_OP            Capability = 0x0BF2
+	CULL_FACE                 Capability = 0x0B44
+	DEPTH_CLAMP               Capability = 0x864F
+	DEPTH_TEST                Capability = 0x0B71
+	DITHER                    Capability = 0x0BD0
+	FRAMEBUFFER_SRGB          Capability = 0x8DB9
+	LINE_SMOOTH               Capability = 0x0B20
+	MULTISAMPLE               Capability = 0x809D
+	POLYGON_OFFSET_FILL       Capability = 0x8037
+	POLYGON_OFFSET_LINE       Capability = 0x2A02
+	POLYGON_OFFSET_POINT      Capability = 0x2A01
+	POLYGON_SMOOTH            Capability = 0x0B41
+	PRIMITIVE_RESTART         Capability = 0x8F9D
+	PROGRAM_POINT_SIZE        Capability = 0x8642
+	SAMPLE_ALPHA_TO_COVERAGE  Capability = 0x809E
+	SAMPLE_ALPHA_TO_ONE       Capability = 0x809F
+	SAMPLE_COVERAGE           Capability = 0x80A0
+	SCISSOR_TEST              Capability = 0x0C11
+	TEXTURE_CUBE_MAP_SEAMLESS Capability = 0x884F
+)
+
+const (
+	COLOR_BUFFER_BIT   ClearFlags = 0x00004000
+	DEPTH_BUFFER_BIT   ClearFlags = 0x00000100
+	STENCIL_BUFFER_BIT ClearFlags = 0x00000400
+)
+
+const (
+	FUNC_ADD              BlendMode = 0x8006
+	FUNC_SUBTRACT         BlendMode = 0x800B
+	FUNC_REVERSE_SUBTRACT BlendMode = 0x800A
+	MIN                   BlendMode = 0x8007
+	MAX                   BlendMode = 0x8008
+)
+
+const (
+	ZERO                     BlendFn = 0x0000
+	ONE                      BlendFn = 0x0001
+	SRC_COLOR                BlendFn = 0x0300
+	ONE_MINUS_SRC_COLOR      BlendFn = 0x0301
+	DST_COLOR                BlendFn = 0x0306
+	ONE_MINUS_DST_COLOR      BlendFn = 0x0307
+	SRC_ALPHA                BlendFn = 0x0302
+	ONE_MINUS_SRC_ALPHA      BlendFn = 0x0303
+	DST_ALPHA                BlendFn = 0x0304
+	ONE_MINUS_DST_ALPHA      BlendFn = 0x0305
+	CONSTANT_COLOR           BlendFn = 0x8002
+	ONE_MINUS_CONSTANT_COLOR BlendFn = 0x8002
+	CONSTANT_ALPHA           BlendFn = 0x8003
+	ONE_MINUS_CONSTANT_ALPHA BlendFn = 0x8004
+)
+
+const (
+	NEVER    DepthFn = 0x0200
+	LESS     DepthFn = 0x0201
+	EQUAL    DepthFn = 0x0202
+	LEQUAL   DepthFn = 0x0203
+	GREATER  DepthFn = 0x0204
+	NOTEQUAL DepthFn = 0x0205
+	GEQUAL   DepthFn = 0x0206
+	ALWAYS   DepthFn = 0x0207
+)
+
+// GetString can be used to retrieve information about the
+// loaded OpenGL implementation, such as the supported shader
+// version.
 func GetString(key Enum) string {
 	val := unsafe.Pointer(C.goglGetString(C.GLenum(key)))
 	return C.GoString((*C.char)(val))
 }
 
-func Init(version string) error {
+// Init loads the OpenGL functions using system-specific
+// library loaders. The string hint is currently unused
+// but reserved for future use.
+func Init(hint string) error {
 	if err := C.goglInit(); err != nil {
 		defer C.free(unsafe.Pointer(err))
 		return errors.New("Could not initialize function " + C.GoString(err))
@@ -86,26 +149,16 @@ func Init(version string) error {
 	return nil
 }
 
-func clamp(x float32) C.GLfloat {
-	switch {
-	case x > 1:
-		return 1
-	case x < 0:
-		return 0
-	default:
-		return C.GLfloat(x)
-	}
+func Enable(cap Capability) {
+	C.goglEnable(C.GLenum(cap))
 }
 
-func clamp64(x float64) C.GLdouble {
-	switch {
-	case x > 1:
-		return 1
-	case x < 0:
-		return 0
-	default:
-		return C.GLdouble(x)
-	}
+func Disable(cap Capability) {
+	C.goglDisable(C.GLenum(cap))
+}
+
+func IsEnabled(cap Capability) bool {
+	return C.goglIsEnabled(C.GLenum(cap)) == 1
 }
 
 func BlendColor(r, g, b, a float32) {
@@ -132,38 +185,86 @@ func DepthFunc(fn DepthFn) {
 	C.goglDepthFunc(C.GLenum(fn))
 }
 
+// https://www.opengl.org/sdk/docs/man3/xhtml/glDepthRange.xml
 func DepthRange(near, far float64) {
 	C.goglDepthRange(clamp64(near), clamp64(far))
 }
 
+// DepthMask enables or disables writing to the
+// depth buffer.
+// https://www.opengl.org/sdk/docs/man3/xhtml/glDepthMask.xml
 func DepthMask(on bool) {
 	if on {
-		C.goglDepthMask(gl_TRUE)
+		C.goglDepthMask(1)
 	} else {
-		C.goglDepthMask(gl_FALSE)
+		C.goglDepthMask(0)
 	}
 }
 
+// ClearColor defines the preset value to set the
+// color buffer to when using Clear(COLOR_BUFFER_BIT)
+// https://www.opengl.org/sdk/docs/man3/xhtml/glClearDepth.xml
 func ClearColor(r, g, b, a float32) {
 	C.goglClearColor(clamp(r), clamp(g), clamp(b), clamp(a))
 }
 
+// ClearDepth defines the preset value to set the
+// depth buffer to when using Clear(DEPTH_BUFFER_BIT)
+// https://www.opengl.org/sdk/docs/man3/xhtml/glClearDepth.xml
 func ClearDepth(depth float64) {
 	C.goglClearDepth(clamp64(depth))
 }
 
+// ClearStencil defines the preset value to set the
+// stencil buffer to when using Clear(STENCIL_BUFFER_BIT).
+// https://www.opengl.org/sdk/docs/man3/xhtml/glClearStencil.xml
 func ClearStencil(index int) {
 	C.goglClearStencil(C.GLint(index))
 }
 
+// Clear clears buffers to preset values.
+// https://www.opengl.org/sdk/docs/man3/xhtml/glClear.xml
 func Clear(bit ClearFlags) {
 	C.goglClear(C.GLbitfield(bit))
 }
 
-func DrawArrays(draw DrawMode, first, count int) {
-	C.goglDrawArrays(C.GLenum(draw), C.GLint(first), C.GLsizei(count))
+// DrawArrays renders primitives from vertex data in ARRAY_BUFFER.
+// A buffer should be bound to ARRAY_BUFFER with BindBuffer, and
+// initialized with vertex data using BufferData before calling
+// DrawArrays.
+//
+// https://www.opengl.org/sdk/docs/man3/xhtml/glDrawArrays.xml
+func DrawArrays(mode DrawMode, first, count int) {
+	C.goglDrawArrays(C.GLenum(mode), C.GLint(first), C.GLsizei(count))
 }
 
+// DrawElements draws vertices in the buffer object bound to 
+// ARRAY_BUFFER as selected by the indices in the buffer object bound to 
+// ELEMENT_ARRAY_BUFFER.
+// https://www.opengl.org/sdk/docs/man3/xhtml/glDrawElements.xml
+func DrawElements(mode DrawMode, count int, typ Type, offset uintptr) {
+	C.goglDrawElements(
+		C.GLenum(mode),
+		C.GLsizei(count),
+		C.GLenum(typ),
+		unsafe.Pointer(offset))
+}
+
+// DrawElementsBaseVertex draws in the same manner as DrawElements, but
+// adds a fixed offset to each index in ELEMENT_ARRAY_BUFFER before 
+// selecting vertices.
+// https://www.opengl.org/sdk/docs/man3/xhtml/glDrawElementsBaseVertex.xml
+func DrawElementsBaseVertex(mode DrawMode, count int, typ Type, offset uintptr, base int) {
+	C.goglDrawElementsBaseVertex(
+		C.GLenum(mode),
+		C.GLsizei(count),
+		C.GLenum(typ),
+		unsafe.Pointer(offset),
+		C.GLint(base))
+}
+
+// Viewport sets the size and position of the screen within the window.
+// https://www.opengl.org/sdk/docs/man3/xhtml/glViewport.xml
 func Viewport(x, y, w, h int) {
 	C.goglViewport(C.GLint(x), C.GLint(y), C.GLsizei(w), C.GLsizei(h))
 	if C.goglGetError() == gl_INVALID_VALUE {
@@ -172,8 +273,7 @@ func Viewport(x, y, w, h int) {
 }
 
 // BufferData uploads vertex data from the system into server memory.
-// The argument data must be a slice or array of numeric values. The
-// data must be a non-nil slice or array of numeric elements. Passing
+// The argument data must be a slice or array of numeric values. Passing
 // a nil or forbidden type will result in a run-time panic.
 func BufferData(t Target, data interface{}, hint UsageHint) error {
 	_, size, count, ptr := sliceInfo(data)
@@ -181,45 +281,24 @@ func BufferData(t Target, data interface{}, hint UsageHint) error {
 	return getError()
 }
 
+// BufferSubData replaces a portion of existing data in a buffer with new
+// data from client memory. The target buffer must have already been
+// initialized with BufferData, and the data to upload must be an array or
+// slice of numeric values.
 func BufferSubData(t Target, offset uintptr, data interface{}) error {
 	_, size, count, ptr := sliceInfo(data)
 	C.goglBufferSubData(C.GLenum(t), C.GLintptr(offset), C.GLsizeiptr(size * uintptr(count)), ptr)
 	return getError()
 }
 
-func sliceInfo(v interface{}) (fmt Type, size uintptr, count int, ptr unsafe.Pointer) {
-        val := reflect.ValueOf(v)
-        typ := reflect.TypeOf(v)
+// CullFace specifies whether front- or back-facing facets are culled.
+// https://www.opengl.org/sdk/docs/man3/xhtml/glCullFace.xml
+func CullFace(mode CullMode) {
+	C.goglCullFace(C.GLenum(mode))
+}
 
-		switch typ.Kind() {
-		case reflect.Array, reflect.Slice:
-			switch typ.Elem().Kind() {
-			case reflect.Float32:
-				fmt = Float
-			case reflect.Int:
-				fmt = Int
-			case reflect.Int16:
-				fmt = Int16
-			case reflect.Int8:
-				fmt = Int8
-			case reflect.Uint:
-				fmt = Uint
-			case reflect.Uint16:
-				fmt = Uint16
-			case reflect.Uint8:
-				fmt = Uint8
-			default:
-				panic("Invalid element type " + typ.Elem().String())
-			}
-			size = typ.Elem().Size()
-			count = val.Len()
-			if val.Len() > 0 {
-				ptr = unsafe.Pointer(val.Index(0).UnsafeAddr())
-			} else {
-				ptr = nil
-			}
-		default:
-			panic("value must be a slice or array")
-		}
-		return
+// FrontFace specifies the winding order when using facet culling.
+// https://www.opengl.org/sdk/docs/man3/xhtml/glFrontFace.xml
+func FrontFace(order WindingOrder) {
+	C.goglFrontFace(C.GLenum(order))
 }
