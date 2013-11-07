@@ -23,7 +23,8 @@ rather than the OpenGL identifiers. uintptr is used for offset arguments rather
 than unsafe.Pointer. Functions that upload data, such as BufferData, take fewer
 arguments and use reflection to discover the type and size of the data.
 
-//BUG(droyo) This library is still in an experimental state. The API is subject to
-// change.
 */
 package gl
+
+//BUG(droyo) This library is still in an experimental state. The API is subject to
+// change.
