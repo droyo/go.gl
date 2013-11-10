@@ -20,7 +20,7 @@ type (
 	// GetUniformLocation and updated with the Uniform*
 	// functions
 	Uniform      int
-	// A Shader is a GLSL program.
+	// A Shader is reference to a GLSL program.
 	Shader       uint
 	// Shaders have a type that describes where they sit in
 	// the rendering pipeline.
@@ -53,8 +53,8 @@ var errNoCompiler = errors.New("Shader compilation not supported on this platfor
 // of the given type.
 func CreateShader(t ShaderType) Shader {
 	x := C.goglCreateShader(C.GLenum(t))
-	if C.goglGetError() != gl_NO_ERROR {
-		panic(fmt.Sprintf("Invalid shader type %d", t))
+	if err := getError(); err != nil {
+		panic(fmt.Sprintf("Invalid shader type %d: %s", t, err))
 	}
 	return Shader(x)
 }

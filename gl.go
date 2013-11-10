@@ -79,6 +79,7 @@ const (
 	POLYGON_OFFSET_LINE       Capability = 0x2A02
 	POLYGON_OFFSET_POINT      Capability = 0x2A01
 	POLYGON_SMOOTH            Capability = 0x0B41
+	POINT_SIZE                Capability = 0x0B11
 	PRIMITIVE_RESTART         Capability = 0x8F9D
 	PROGRAM_POINT_SIZE        Capability = 0x8642
 	SAMPLE_ALPHA_TO_COVERAGE  Capability = 0x809E
@@ -301,4 +302,11 @@ func CullFace(mode CullMode) {
 // https://www.opengl.org/sdk/docs/man3/xhtml/glFrontFace.xml
 func FrontFace(order WindingOrder) {
 	C.goglFrontFace(C.GLenum(order))
+}
+
+// PointSize specifies the diameter of rasterized points.
+//
+// https://www.opengl.org/sdk/docs/man/xhtml/glPointSize.xml
+func PointSize(diameter float32) {
+	C.goglPointSize(C.GLfloat(diameter))
 }

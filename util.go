@@ -39,16 +39,20 @@ func sliceInfo(v interface{}) (format Type, size uintptr, count int, ptr unsafe.
 			case reflect.Int:
 				//NOTE(droyo) consider panicking for unqualified Int types
 				format = Int32
-			case reflect.Int16:
-				format = Int16
 			case reflect.Int8:
 				format = Int8
+			case reflect.Int16:
+				format = Int16
+			case reflect.Int32:
+				format = Int32
 			case reflect.Uint:
 				format = Uint32
-			case reflect.Uint16:
-				format = Uint16
 			case reflect.Uint8:
 				format = Uint8
+			case reflect.Uint16:
+				format = Uint16
+			case reflect.Uint32:
+				format = Uint32
 			default:
 				panic("Invalid element type " + typ.Elem().String())
 			}
